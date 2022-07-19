@@ -2,28 +2,56 @@
 pragma solidity ^0.8.15;
 
 import {Owned} from "solmate/auth/Owned.sol";
+import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
-interface INounsAuctionPartial {
-  function createBid(uint256 nounId) external payable;
-  function auction() external returns (INounsAuctionHouse.Auction);
-}
+import {INounsAuctionFull} from "./interfaces/INounsAuctionFull.sol";
+
 
 contract NounsBidder is Owned {
-  event FundsAdded(address sender, uint256 amount);
+    event FundsAdded(address indexed sender, uint256 amount);
+    event FundsRemoved(address indexed recipient, uint256 amount);
+    event BidPlaced(address indexed sender, uint256 indexed nounId, uint256 bidAmount);
 
-  INounsAuction public immutable nounsAuction;
-  uint256 public maxAuctionBidAmount;
 
-  constructor(INounsAuction _nounsAuction, uint256 maxAuctionBidAmount, address owner) Owned(owner) {
-    nounsAuction = _nounsAuction;
-    maxAuctionBidAmount = _maxAuctionBidAmount;
-  }
+    INounsAuctionFull public immutable nounsAuction;
+    uint256 public maxAuctionBidAmount;
 
-  receive() {
-    emit FundsAdded(msg.sender, msg.value);
-  }  
+    constructor(
+        INounsAuctionFull _nounsAuction,
+        uint256 _maxAuctionBidAmount,
+        address owner
+    ) Owned(owner) {
+        nounsAuction = _nounsAuction;
+        maxAuctionBidAmount = _maxAuctionBidAmount;
+    }
 
-  function bid() external {
-    nounsAuction.bid()
-  }
+    function setMaxAuctionBidAmount(uint256 _maxAuctionBidAmount) external onlyOwner {
+      maxAuctionBidAmount = _maxAuctionBidAmount;
+    }
+
+    // TODO: Only receive from owner?
+    receive() payable external {
+        emit FundsAdded(msg.sender, msg.value);
+    }
+
+    function withdraw(uint256 amount) external onlyOwner {
+      // Throws if amount > address(this).balance
+      SafeTransferLib.safeTransferETH(owner, amount);
+      emit FundsRemoved(owner, amount);
+    }
+
+    function _getNextBidAmount() internal returns (uint256) {
+        uint256 currentBid = nounsAuction.auction().amount;
+        return
+            currentBid + currentBid * nounsAuction.minBidIncrementPercentage();
+    }
+
+    function bid() external {
+        uint256 bidAmount = _getNextBidAmount();
+        uint256 nounId = nounsAuction.auction().nounId;
+        nounsAuction.createBid{value: bidAmount, gas: 300_000}(
+            nounId
+        );
+        emit BidPlaced(msg.sender, nounId, bidAmount);
+    }
 }

@@ -1,16 +1,18 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.15;
 
-
+interface INounsAuctionPartial {
+  function createBid(uint256 nounId) external payable;
+}
 
 contract NounsBidder is Ownable {
   event FundsAdded(address sender, uint256 amount);
 
-  address public immutable nounsAuctionAddress;
+  INounsAuction public immutable nounsAuction;
   uint256 public maxAuctionBidAmount;
 
-  constructor(address _nounsAuctionAddress, uint256 maxAuctionBidAmount) {
-    nounsAuctionAddress = _nounsAuctionAddress;
+  constructor(INounsAuction _nounsAuction, uint256 maxAuctionBidAmount) {
+    nounsAuction = _nounsAuction;
     maxAuctionBidAmount = _maxAuctionBidAmount;
   }
 
@@ -19,6 +21,7 @@ contract NounsBidder is Ownable {
   }  
 
   function bid() external {
-
+    uint256 nounsAuction.
+    nounsAuction.bid()
   }
 }

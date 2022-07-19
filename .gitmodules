@@ -4,3 +4,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "lib/lilnouns-monorepo"]
+	path = lib/lilnouns-monorepo
+	url = https://github.com/lilnounsDAO/lilnouns-monorepo

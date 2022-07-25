@@ -12,6 +12,8 @@ contract NounsBidder is Owned {
     event FundsRemoved(address indexed recipient, uint256 amount);
     event BidPlaced(address indexed sender, uint256 indexed nounId, uint256 bidAmount);
 
+    error BidAmountTooHigh();
+
 
     INounsAuctionFull public immutable nounsAuction;
     uint256 public maxAuctionBidAmount;
@@ -48,6 +50,9 @@ contract NounsBidder is Owned {
 
     function bid() external {
         uint256 bidAmount = _getNextBidAmount();
+        if (bidAmount > maxAuctionBidAmount) {
+            revert BidAmountTooHigh();
+        }
         uint256 nounId = nounsAuction.auction().nounId;
         nounsAuction.createBid{value: bidAmount, gas: 300_000}(
             nounId

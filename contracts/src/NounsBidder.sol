@@ -8,7 +8,6 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 
 import {INounsAuctionFull} from "./interfaces/INounsAuctionFull.sol";
 
-
 /// @notice Nouns Bidder Contract
 contract NounsBidder is Owned, ERC721TokenReceiver {
     event FundsAdded(address indexed sender, uint256 amount);
@@ -34,6 +33,21 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
         maxAuctionBidAmount = _maxAuctionBidAmount;
     }
 
+    function auctionInfo()
+        external
+        returns (
+            uint256,
+            uint256,
+            bool
+        )
+    {
+        return (
+            address(this).balance,
+            maxAuctionBidAmount,
+            !nounsAuction.paused()
+        );
+    }
+
     /// @notice Admin setter for max auction bid amount
     /// @param _maxAuctionBidAmount maximum auction bid amount
     function setMaxAuctionBidAmount(uint256 _maxAuctionBidAmount)
@@ -42,7 +56,6 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
     {
         maxAuctionBidAmount = _maxAuctionBidAmount;
     }
-
 
     /// @notice Withdraw NFT from contract
     /// @param contractAddress NFT contract address to withdraw
@@ -111,8 +124,7 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
         address,
         uint256,
         bytes calldata
-    ) external override pure returns (bytes4) {
+    ) external pure override returns (bytes4) {
         return ERC721TokenReceiver.onERC721Received.selector;
     }
-
 }

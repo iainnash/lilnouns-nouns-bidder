@@ -7,4 +7,5 @@ interface INounsAuctionFull is INounsAuctionHouse {
   function auction() external returns (INounsAuctionHouse.Auction memory);
   function nouns() external returns (address);
   function minBidIncrementPercentage() external returns (uint8);
+  function paused() external returns (bool);
 }

@@ -1,0 +1,29 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "parcel": "^2.7.0",
+    "process": "^0.11.10",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "^0.4.6",
+    "@zoralabs/zdk": "^2.1.5",
+    "ethers": "^5.6.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "swc": "^1.0.11",
+    "swr": "^1.3.0",
+    "wagmi": "^0.6.2"
+  },
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build",
+    "sync-abi": "cat ../contracts/out/NounsBidder.sol/NounsBidder.json | jq .abi > src/abis/nouns-bidder-abi.json"
+  }
+}

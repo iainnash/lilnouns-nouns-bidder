@@ -16,13 +16,13 @@ contract ContractScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        NounsBidder nft = new NounsBidder({
+        new NounsBidder({
             _nounsAuction: nounsAuction,
             _maxAuctionBidAmount: 20 ether,
             owner: owner
         });
 
-        nft.call{value: 0.2 ether}();
+        // nft.call{value: 0.2 ether}();
 
         vm.stopBroadcast();
     }

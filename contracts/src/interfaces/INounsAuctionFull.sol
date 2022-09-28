@@ -4,8 +4,9 @@ import {INounsAuctionHouse} from "lilnouns-contracts/interfaces/INounsAuctionHou
 
 /// @dev This adds addtl read fns missing in the standard nouns auction house interface
 interface INounsAuctionFull is INounsAuctionHouse {
-  function auction() external returns (INounsAuctionHouse.Auction memory);
-  function nouns() external returns (address);
-  function minBidIncrementPercentage() external returns (uint8);
-  function paused() external returns (bool);
+  function auction() external view returns (INounsAuctionHouse.Auction memory);
+  function nouns() external view returns (address);
+  function minBidIncrementPercentage() external view returns (uint8);
+  function reservePrice() external view returns (uint256);
+  function paused() external view returns (bool);
 }

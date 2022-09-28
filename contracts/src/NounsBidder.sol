@@ -60,20 +60,16 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
     /// @notice Withdraw NFT from contract
     /// @param contractAddress NFT contract address to withdraw
     /// @param tokenId token ID to withdraw
-    function withdrawNFT(address contractAddress, uint256 tokenId)
-        public
-        onlyOwner
-    {
+    /// @dev Open access to all since this always retrieves to DAO/treasury/owner
+    function withdrawNFT(address contractAddress, uint256 tokenId) public {
         ERC721(contractAddress).transferFrom(address(this), owner, tokenId);
     }
 
     /// @notice Withdraw ERC20 token (in case that auction refund comes as ERC20)
     /// @param contractAddress contract address for ERC20 token
     /// @param amount amount of the token to withdraw
-    function withdrawERC20(address contractAddress, uint256 amount)
-        external
-        onlyOwner
-    {
+    /// @dev Open access to all since this always retrieves to DAO/treasury/owner
+    function withdrawERC20(address contractAddress, uint256 amount) external {
         ERC20(contractAddress).transferFrom(address(this), owner, amount);
     }
 
@@ -102,6 +98,9 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
     /// @return next bid amount
     function _getNextBidAmount() internal returns (uint256) {
         uint256 currentBid = nounsAuction.auction().amount;
+        if (currentBid == 0) {
+            return nounsAuction.reservePrice();
+        }
         return
             currentBid + currentBid * nounsAuction.minBidIncrementPercentage();
     }

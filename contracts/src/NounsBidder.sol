@@ -20,6 +20,7 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
     );
 
     error BidAmountTooHigh();
+    error DidNotWinAuction(uint256 tokenId);
 
     INounsAuctionFull public immutable nounsAuction;
     uint256 public maxAuctionBidAmount;
@@ -67,10 +68,10 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
 
     /// @notice Withdraw ERC20 token (in case that auction refund comes as ERC20)
     /// @param contractAddress contract address for ERC20 token
-    /// @param amount amount of the token to withdraw
     /// @dev Open access to all since this always retrieves to DAO/treasury/owner
-    function withdrawERC20(address contractAddress, uint256 amount) external {
-        ERC20(contractAddress).transferFrom(address(this), owner, amount);
+    function withdrawERC20(address contractAddress) external {
+        ERC20 token = ERC20(contractAddress);
+        SafeTransferLib.safeTransfer(token, owner, token.balanceOf(address(this)));
     }
 
     /// @notice Withdraw funds in ETH from contract
@@ -90,6 +91,9 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
     function finalizeAndWithdraw() external {
         uint256 nounId = nounsAuction.auction().nounId;
         nounsAuction.settleCurrentAndCreateNewAuction();
+        if (ERC721(nounsAuction.nouns()).ownerOf(nounId) != address(this)) {
+            revert DidNotWinAuction(nounId);
+        }
         withdrawNFT(address(nounsAuction.nouns()), nounId);
         emit FinalizedAndWithdrawAuction(nounId, msg.sender);
     }
@@ -107,6 +111,7 @@ contract NounsBidder is Owned, ERC721TokenReceiver {
 
     /// @notice Places bid for Nouns token from treasury.
     /// @dev This can be called by anyone and will utilize contract storage.
+    /// @dev This will fail on many conditions if createBid fails (auction ended, paused etc.)
     function bid() external {
         uint256 bidAmount = _getNextBidAmount();
         if (bidAmount > maxAuctionBidAmount) {

@@ -7,3 +7,6 @@
 [submodule "contracts/lib/lilnouns-monorepo"]
 	path = contracts/lib/lilnouns-monorepo
 	url = https://github.com/lilnounsDAO/lilnouns-monorepo
+[submodule "contracts/lib/openzeppelin-contracts-upgradeable"]
+	path = contracts/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/openzeppelin/openzeppelin-contracts-upgradeable

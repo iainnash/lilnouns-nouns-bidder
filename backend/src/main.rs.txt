@@ -1,0 +1,36 @@
+use ethers::prelude::*;
+use eyre::Result;
+use std::env;
+use std::sync::Arc;
+
+// ## auction house repo
+// 0x830bd73e4184cef73443c15111a1df14e495c706
+
+abigen!(
+    NOUNS_BIDDER,
+    r#"[
+    event AuctionBid(uint256 nounId, address sender, uint256 value, bool extended)
+  ]"#,
+);
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let rpc_wss = env::var("RPC_WSS").unwrap();
+    let client = Provider::<Ws>::connect(rpc_wss).await?;
+    let client = Arc::new(client);
+
+    let address = "0x830bd73e4184cef73443c15111a1df14e495c706".parse::<Address>()?;
+    let auction = NOUNS_BIDDER::new(address, Arc::clone(&client));
+
+    let events = auction.events();
+    let mut stream = events.stream().await?;
+
+    while let Some(Ok(event)) = stream.next().await {
+        println!(
+            "noun_id: {:?}, sender: {:?}, value: {:?}, extended: {:?}",
+            event.noun_id, event.sender, event.value, event.extended
+        );
+    }
+
+    Ok(())
+}
